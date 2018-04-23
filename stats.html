@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="https://code.jquery.com/jquery-latest.min.js"></script>
+	<title>stats</title>
+	<script src="/socket.io/socket.io.js"></script>
+	<link rel="shortcut icon" type="image/png" href="https://www.thatsoftwaredude.com/images/post/tic-tac-toe.png" />
+	<style type="text/css">
+
+	body
+  {
+    margin-top:62px;
+    background:url("https://i.imgur.com/mc1SHbe.gif");
+ 
+  background-size: 1640px 900px;
+  }
+
+
+
+	@header-color: gray; 
+@table-color: darken(gray, 20%);
+@vertical-border-width: 4px;
+@horizontal-border-width: 1px;
+
+
+
+
+
+
+
+table{
+
+
+  color: white;
+  border-spacing: 0;
+  position: static;
+
+}
+
+tr:first-child{
+  background-color: @header-color;
+}
+
+tr:nth-child(2) > td{
+  border-top-width: 0;
+}
+
+tr{
+  background-color: @table-color;
+}
+
+th, td{
+  margin: 0;
+  padding: .5em 1.5em;
+  text-align: center;
+  border-width: @horizontal-border-width 0;
+  border-color: @header-color;
+  border-style: solid;
+}
+
+th{
+  border-bottom-width: @horizontal-border-width;
+}
+
+th:nth-child(even){
+  border-width: 0 @vertical-border-width;
+  border-color: @table-color;
+  border-style: solid;
+}
+
+td:nth-child(even){
+  border-width: @horizontal-border-width @vertical-border-width;
+  border-color: @header-color;
+  border-style: solid;
+}
+
+#backbutton{
+
+	position: fixed;
+      top: 20px;
+      left: 20px;
+      width: 80px;
+       background:transparent;
+ color:orange;
+ 
+font: italic;
+}
+
+
+
+			#playername{
+		
+		font-size:15pt;
+		border: 0;
+		margin-bottom: 0px;
+		height:35px;
+		text-align:center;
+		 font-size:30px;
+  font-family:shadows into light;
+  color:brown;
+   -webkit-transition:0.5s;
+  transition:0.5s;
+  background:transparent;
+  position:static;
+	}
+	#playername p{
+		position:static;
+	}
+	</style>
+</head>
+<body>
+	<h2><textarea id="playername" readonly ></textarea></h2>
+	<button id="backbutton" onclick="backbuttonfun()">back</button>
+	<table id="table" style="width:100%">
+		<tr>
+			
+			<th><strong>RATING</strong></th>
+			<th><strong>WINS</strong></th>
+			<th><strong>LOSES</strong></th>
+			<th><strong>DRAW</strong></th>
+			<th><strong>WIN STREAK</strong></th>
+			<th><strong>LOSING STREAK</strong></th>
+			<th><strong>DRAW STREAK</strong></th>
+		</tr>
+	</table>
+
+<script >
+	var y,username;
+	var realusername;
+	var name;
+	var socket = io.connect();
+	var $playername=$('#playername'); 
+	$(function(){
+		var str = window.location.search.replace(/^\?/, '');
+        name="";
+        realusername="";
+        var i;
+		for(i=0;str[i]&&str[i]!='&';i++)
+		{
+             name+=str[i];
+		}
+        y=str[i+1];
+        i=i+3;
+        for(;str[i];i++)
+        {
+             realusername+=str[i];
+        }
+        console.log(str+" "+name+" "+y+" "+realusername+" %) ");
+              
+              $playername.val(name);
+              var i;
+              $.get('https://tictactoe105.herokuapp.com/records', {}, function(data2){
+              
+              console.log(i+" "+data2[0]);
+              var tb=document.getElementById('table');
+              tb.innerHTML+="<tr><td>"+data2[0]['rating']+"</td><td>"+data2[0]['no_of_wins']+"</td><td>"+data2[0]['no_of_loses']+"</td><td>"+data2[0]['no_of_draws']+"</td><td>"+data2[0]['max_winning_streak']+"</td><td>"+data2[0]['max_losing_streak']+"</td><td>"+data2[0]['max_drawing_streak']+"</td></tr>";
+
+
+            });
+            });
+		
+	
+	function backbuttonfun()
+	{
+		if(y==1)
+	  location.href="https://tictactoe105.herokuapp.com/index?"+name+"";
+	     if(y==2)
+	  location.href="https://tictactoe105.herokuapp.com/admin?"+realusername+"";
+	     if(y==3)
+	     {
+	     	 socket.emit('view friendlist',{user:realusername});
+	   location.href="https://tictactoe105.herokuapp.com/friendlist?"+realusername+"";
+	     }     	
+	}
+</script>
+</body>
+</html>

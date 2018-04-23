@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" >
+  <script src="https://code.jquery.com/jquery-latest.min.js"></script>
+  <link rel="shortcut icon" type="image/png" href="https://www.thatsoftwaredude.com/images/post/tic-tac-toe.png" />
+  <script src="/socket.io/socket.io.js"></script>
+<style type="text/css">
+
+body{
+    
+    background: url("https://s3.envato.com/files/189282459/3.png");
+   
+     background-size: 1640px 900px;
+   
+}
+
+
+h3{
+    margin: 5px;
+        font-size: 22px;
+        color: white;
+}
+
+  #backbutton
+  {
+    margin: 5px;
+    background: #1c8adb;
+    color: #fff;
+    font-size: 18px;
+    border-radius: 20px;
+    margin-bottom: 50px;
+  }
+
+   #viewstatsbutton
+  {
+   margin: 5px;
+   margin-bottom: 50px;
+    background: #1c8adb;
+    color: #fff;
+    font-size: 18px;
+    border-radius: 20px;
+    margin-left: 0;
+  }
+   #refreshbutton
+  {
+   margin: 5px;
+    background: #1c8adb;
+    color: #fff;
+    font-size: 18px;
+    border-radius: 20px;
+    left: 0;
+    margin-bottom: 50px;
+  }
+
+  #unfriendbutton
+  {
+margin: 5px;
+    background: #1c8adb;
+    color: #fff;
+    font-size: 18px;
+    border-radius: 20px;
+    margin-bottom: 50px;
+  }
+   #submitfriendsbutton
+  {
+    margin: 5px;
+    background: #1c8adb;
+    color: #fff;
+    font-size: 18px;
+    border-radius: 20px;
+  }
+   #friendinput
+  {
+
+    margin: 5px;
+    font-size: 18px;
+    border-radius: 20px;
+  }
+
+  table{
+
+
+  color: white;
+  border-spacing: 0;
+  position: static;
+
+}
+
+tr:first-child{
+  background-color: @header-color;
+}
+
+tr:nth-child(2) > td{
+  border-top-width: 0;
+}
+
+tr{
+  background-color: @table-color;
+}
+
+th, td{
+  margin: 0;
+  padding: .5em 1.5em;
+  text-align: center;
+  border-width: @horizontal-border-width 0;
+  border-color: black;
+  color: black;
+  border-style: solid;
+}
+
+th{
+  border-bottom-width: @horizontal-border-width;
+}
+
+th:nth-child(even){
+  border-width: 0 @vertical-border-width;
+  border-color: @table-color;
+  border-style: solid;
+}
+
+td:nth-child(even){
+  border-width: @horizontal-border-width @vertical-border-width;
+  border-color: @header-color;
+  border-style: solid;
+}
+  </style>
+
+  <title>tictactoe friendlist</title>
+</head>
+<body>
+<h3>Enter friend's name:</h3><input id="friendinput" type="text" name="friendnametext"><br>
+<button id="submitfriendsbutton" onclick="submitfriendsbutfun()" class ="btn btn-primary">submit to add to friend list</button><br>
+<button id="backbutton" onclick="backbuttonfun()" class ="btn btn-primary">back</button>
+ <button id="refreshbutton" onclick="refreshbuttonfun()" class ="btn btn-primary">refresh</button>
+ <button id="viewstatsbutton" onclick="viewstatsbuttonfun()" class ="btn btn-primary">view stats</button>
+ <button id="unfriendbutton" onclick="unfriendbuttonfun()" class ="btn btn-primary">Unfriend</button>
+
+<table id="table" style="width:100%">
+    
+  </table>
+<script type="text/javascript">
+  var name;
+  var socket = io.connect();
+  $friendinput=$('#friendinput');
+   $(function(){
+    name = window.location.search.replace(/^\?/, '');
+
+    socket.emit('view friendlist',{user:name});
+    viewusersfun();
+
+   });
+   function viewusersfun()
+     {
+      socket.emit('view friendlist',{user:name});
+         setTimeout(function(){
+           $.get('https://tictactoe105.herokuapp.com/records', {}, function(data2){
+              var tb=document.getElementById('table');
+              
+              tb.innerHTML+="<tr><th>*</th><td><strong>friends</strong></td><td><strong>rating</strong></td></tr>";
+              for(var i=0;i<data2.length;i++)
+              {
+              
+              tb.innerHTML+="<tr><td><input class="+"radios"+" type="+"radio"+" value="+data2[i]['username2']+" group="+"allradio"+" name="+"allradio2"+"</td><td>"+data2[i]['username2']+"</td><td>"+data2[i]['rating']+"</td></tr>";
+              }
+                 
+            });
+         },400);
+        
+        
+     }
+     function refreshbuttonfun()
+     {
+      
+      var tb=document.getElementById('table');
+      tb.innerHTML="";
+      viewusersfun();
+      
+     }
+     function submitfriendsbutfun()
+     {
+      socket.emit('add friend',{user:name,friend:$friendinput.val()});
+      
+      setTimeout(function(){
+          refreshbuttonfun();
+        },500);
+     }
+     function unfriendbuttonfun()
+     {
+      var x=document.getElementsByClassName("radios");
+        console.log(x.length);
+        for(var i=0;i<x.length;i++)
+        {
+          if(x[i].checked==true)
+           {
+            
+            socket.emit('remove friend',{user:name,friend:x[i].value});
+            
+            break;
+           }
+        }
+        
+        setTimeout(function(){
+          refreshbuttonfun();
+        },500);
+       
+     }
+     function backbuttonfun()
+     {
+      var tb=document.getElementById('table');
+      tb.innerHTML="";
+       location.href="https://tictactoe105.herokuapp.com/index?"+name+"";
+     }
+     function viewstatsbuttonfun()
+     {
+        var x=document.getElementsByClassName("radios");
+        console.log(x.length);
+        for(var i=0;i<x.length;i++)
+        {
+          if(x[i].checked==true)
+           {
+            
+            socket.emit('view stats',{user:x[i].value});
+            location.href="https://tictactoe105.herokuapp.com/stats?"+x[i].value+"&"+3+"&"+name+"";
+            break;
+           }
+        }
+        
+        
+     }
+</script>
+</body>
+</html>
